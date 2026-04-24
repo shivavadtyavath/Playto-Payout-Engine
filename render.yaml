@@ -18,6 +18,8 @@ services:
         value: "False"
       - key: CORS_ALLOWED_ORIGINS
         value: "https://playto-payout-engine.vercel.app,http://localhost:3000"
+      - key: PYTHON_VERSION
+        value: "3.11.9"
       # No REDIS_URL — Celery runs eagerly (synchronously) on free tier
       # This means payouts process immediately in the request cycle
 
