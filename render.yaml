@@ -75,6 +75,9 @@ services:
     name: playto-redis
     plan: free
     maxmemoryPolicy: noeviction
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow all (internal services only)
 
 databases:
   # ── PostgreSQL ────────────────────────────────────────────────────
