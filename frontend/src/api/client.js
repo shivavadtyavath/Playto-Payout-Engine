@@ -3,7 +3,7 @@
  * All amounts are in paise (integers). Display conversion happens in components.
  */
 
-const API_BASE = process.env.REACT_APP_API_URL || '/api/v1';
+const API_BASE = process.env.REACT_APP_API_URL || 'https://playto-backend-y9sc.onrender.com/api/v1';
 
 async function apiFetch(path, options = {}, merchantId) {
   const headers = {
