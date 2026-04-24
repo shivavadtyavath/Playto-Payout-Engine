@@ -1,0 +1,25 @@
+name: playto-payout-engine
+
+services:
+  - name: playto-backend
+    type: web
+    git:
+      repository: github.com/shivavadtyavath/Playto-Payout-Engine
+      branch: main
+    build:
+      buildpack:
+        build_command: pip install -r requirements.txt && python manage.py collectstatic --noinput
+      working_directory: backend
+    run:
+      command: python manage.py migrate && python manage.py seed_data && gunicorn playto.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+      working_directory: backend
+    ports:
+      - port: 8000
+        protocol: http
+    env:
+      - key: DJANGO_SECRET_KEY
+        value: playto-koyeb-secret-key-2024-change-this
+      - key: DEBUG
+        value: "False"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://playto-payout-engine.vercel.app,http://localhost:3000"
