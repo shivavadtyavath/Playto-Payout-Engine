@@ -1,5 +1,5 @@
 services:
-  # ── Django API ────────────────────────────────────────────────────
+  # ── Django API (web service — free tier) ──────────────────────────
   - type: web
     name: playto-backend
     plan: free
@@ -12,75 +12,17 @@ services:
         fromDatabase:
           name: playto-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: playto-redis
-          property: connectionString
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DEBUG
         value: "False"
       - key: CORS_ALLOWED_ORIGINS
         value: "https://playto-payout-engine.vercel.app,http://localhost:3000"
-
-  # ── Celery Worker ─────────────────────────────────────────────────
-  - type: worker
-    name: playto-worker
-    plan: free
-    env: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A playto worker --loglevel=info --concurrency=2
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: playto-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: playto-redis
-          property: connectionString
-      - key: DJANGO_SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "False"
-
-  # ── Celery Beat ───────────────────────────────────────────────────
-  - type: worker
-    name: playto-beat
-    plan: free
-    env: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A playto beat --loglevel=info
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: playto-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: playto-redis
-          property: connectionString
-      - key: DJANGO_SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "False"
-
-  # ── Redis ─────────────────────────────────────────────────────────
-  - type: redis
-    name: playto-redis
-    plan: free
-    maxmemoryPolicy: noeviction
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: Allow all (internal services only)
+      # No REDIS_URL — Celery runs eagerly (synchronously) on free tier
+      # This means payouts process immediately in the request cycle
 
 databases:
-  # ── PostgreSQL ────────────────────────────────────────────────────
+  # ── PostgreSQL (free tier) ────────────────────────────────────────
   - name: playto-db
     plan: free
     databaseName: playto
