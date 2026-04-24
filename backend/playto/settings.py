@@ -102,11 +102,26 @@ if not DEBUG:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS
-CORS_ALLOWED_ORIGINS = os.environ.get(
+_cors_origins = os.environ.get(
     'CORS_ALLOWED_ORIGINS',
     'http://localhost:3000,http://127.0.0.1:3000'
-).split(',')
-CORS_ALLOW_ALL_ORIGINS = DEBUG
+)
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins.split(',')]
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all for now — tighten after testing
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-merchant-id',
+    'idempotency-key',
+]
 
 # DRF
 REST_FRAMEWORK = {
