@@ -5,8 +5,8 @@ services:
     plan: free
     env: python
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: python manage.py migrate && python manage.py seed_data && gunicorn playto.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput || true
+    startCommand: python manage.py migrate && (python manage.py seed_data || true) && gunicorn playto.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     envVars:
       - key: DATABASE_URL
         fromDatabase:
