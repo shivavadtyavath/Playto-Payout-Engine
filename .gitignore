@@ -37,8 +37,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# ── Deployment (using Railway, not Render) ───────────────────────────
-render.yaml
+# ── Deployment ───────────────────────────────────────────────────────
+# render.yaml and railway.json are kept — needed for deployment
 
 # ── OS ───────────────────────────────────────────────────────────────
 .DS_Store

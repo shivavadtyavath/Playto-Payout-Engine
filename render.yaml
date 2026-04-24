@@ -1,0 +1,84 @@
+services:
+  # ── Django API ────────────────────────────────────────────────────
+  - type: web
+    name: playto-backend
+    plan: free
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate && python manage.py seed_data && gunicorn playto.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: playto-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: playto-redis
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://playto-payout-engine.vercel.app,http://localhost:3000"
+
+  # ── Celery Worker ─────────────────────────────────────────────────
+  - type: worker
+    name: playto-worker
+    plan: free
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A playto worker --loglevel=info --concurrency=2
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: playto-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: playto-redis
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+
+  # ── Celery Beat ───────────────────────────────────────────────────
+  - type: worker
+    name: playto-beat
+    plan: free
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A playto beat --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: playto-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: playto-redis
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+
+  # ── Redis ─────────────────────────────────────────────────────────
+  - type: redis
+    name: playto-redis
+    plan: free
+    maxmemoryPolicy: noeviction
+
+databases:
+  # ── PostgreSQL ────────────────────────────────────────────────────
+  - name: playto-db
+    plan: free
+    databaseName: playto
+    user: playto
